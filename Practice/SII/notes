@@ -1,0 +1,184 @@
+Bismillah
+
+vector programmming: OpenCL/Cuda
+
+gpu programming is different from CPU programming
+
+cpu don't have cuda cores while gpu (nvidia) has cuda cores
+
+cpu has separate ALU and FPU
+
+GPU don't have separate ALU and FPU
+
+that's why GPU is not for MIMD (multiple instructions multiple data). it is used for SIMD (single instruction multiple data)
+
+GPU has separate RAM e.g DDR5 e.t.c
+
+dual core cpu:
+
+1 microprocessor with 2 core
+
+core 2 duo:
+
+2 microprocessor each with 1 core
+
+in dual core, both cores are on a single microprocessor, so both shared same cache, registers e.t.c
+
+while in core 2 duo, cache,register e.t.c are separate
+
+cuda cores:
+
+cores in nvidia gpus are called cuda cores
+
+few terminologies related to vector programming:
+
+control logic: allow parallel or out of order execution of threads
+
+alu: perform arthematic and bitwise operations
+
+cache:on chip memory to reduce data access latency
+
+openCL: open computing language
+
+-cross platform
+
+-used by AMD and Nvidia both
+
+-interoperable with openGL
+
+Cuda: compute unified device architecture
+
+-only in nvidia
+
+-interoperable with opengl in one-way. opengl can view cuda but cuda cannot view opengl buffers
+
+compilation of cuda code:
+
+nvcc hello_world.cu
+
+./a.out
+
+DRAM cpu: off-chip memory to store different processes
+
+why people are switching to GPUS?
+
+-performance reasons
+
+-processor less availability
+
+-scalability
+
+-low price to performance ration
+
+PCL express 2.0 interface bus is used to exchange all data between CPU and GPU 
+
+PCL express has a transfer/processing rate 6gb/s while gpu has a processing/transfer rate of 200gb/s and also cpu has a processing rate of 25 gb/s. So this PCLe has a very slow rate as compared to others. So its a bottleneck because it is must used to transfer data from cpu memory to gpu memory and vice versa
+
+transfer of data:
+
+first the load from disk to memory-ram. Then from RAM, the data moved to CPU memory (register/cache) then from cpu memory, it moves to GPU memory (DRAM GDDR5 e,t,c). Then from DRAM it moves to GPU for processing. After processing comes back to gpu memory, then gpu memory to cpu memory then to ram and then to disk
+
+1 microprocessor can have multiple cores
+
+microprocessor is also known as block
+
+cores are also known as threads
+
+e.g 
+
+5 microprocessors with 192 threads on each. total number of threads equal to 2880
+
+suppose we want to change a smiley face to sad.
+
+break the process into parts.
+
+one part will execute one by one on gpu
+
+it'll take time, because gpu is not being fully used. what technique to apply to use gpu fully
+
+execute this process parallely
+
+so we'll give each portion of problem parallely to gpu threads but upto a limit because we cannot go over the limit of pclexpress
+
+the program will run on cpu, only the gpu part will run on gpu. cpu will just have dummy call for the gpu function
+
+there can be a lil delay on cpu because of kernal space but on gpu no delay because there is no kernal space there
+
+<<<1,4>>> 1 microprocessor and 4 cores
+
+or 1 block, 4 threads
+
+<<<4,1>>>4 microprocessors and 1 thread
+
+or 4 blocks with 1 thread each
+
+suppose we have problem of size t=4, the kernal threads(user lvl threads)  will be made (4) on runtime, then the problem will be passed to gpu which have 192 threads per 15 microprocessors 192/15. Total of 2880 threads, only 4 of the threads are used to solve the problem, the remaining will be in waiting list
+
+warp library is used for cuda programming
+
+another example is that we've problem of 2880 threads. but we are using wrap library which only allow a problem chunk of 32 batches to be mapped at a single microprocessor at a time. So in this case, we've 15 microprocessors so each microprocessor will be mapped with 32 batch (chunk) and this mapping will be repeated for 5 times 
+
+so 5x32x15=2400 still the problem is not complete. Also only 32 threads out of 192 of each microprocessor will be used with each batch the others remain in the waiting list. We cannot 100 percent map the load on the GPU threads.
+
+this is user threads assignment to gpu threads by warp in the batch of 32
+
+32=chunksize/load size
+
+15=microprocessors
+
+dimGrid=Grid Dimension=Number of blocks (3,1,1)
+
+dimBlock=Block dimension=number of threads (8,1,1)
+
+index=blockid*block.dimension+thread.id
+
+gpu-profiling-in-gpu-is done by nvprof
+
+hadoop:
+
+break files into blocks b=b1,b2.....,bn
+
+distribute blocks into multiple data nodes within cluster
+
+traditional file system:
+
+-user program distributes into logical blocks
+
+-logical block are moved to different multiple hardrives
+
+-these harddrives collectively made file system
+
+hadoop system:
+
+-move files from file system to newfile system
+
+-then from new file system to google file system
+
+-from gfs to hadoop files system
+
+hadoop files sytems:
+
+hdfs1,hdfs2,hdfs3,etc
+
+hdfs file system keep copies of data in each other to avoid data loss
+
+hadoop uses key value pair
+
+hadoop work on key value pair (key,value) key is identifier,value is operand
+
+there are mapper threads which maps the blocks to threads and then there are reducer threads that apply arthimetic operations
+
+what is warp?Why is it needed in gpu programming?
+
+warp is a library used for executing tasks on nvidia gpu's using cuda (SIMD instructions). a warp consist of 32 threads. It make sures that the problem executes in the batches of 32 threads on gpu. This is essential to achieve high parallism and performance in gpu programming. warp allows efficient parallel processsing because all threads in a warp execute the same instruction at the same time reducing the need of branching and enabling better utilization of gpu resources
+We can also use half warp, that allow batch of 16 threads of gpu to execute at a time.
+What is the rationale behind usage of the symbol global when declaring cuda kernel functions?
+
+in cuda programming, when u declare a kernal function, we use the _ _ global _ _ qualifier to indicate that this function is a GPU kernal that will be launched on the device and executed by multiple threads in parallel. the _ _ global _ _ qualifier is specific to CUDA and helps the complier identify that this function is meant to run on the GPU.
+
+What difference does it make if a gpu program is run as 1 block with 8 threads, or 8 blocks with 1 thread?
+
+both of these <1,8> and <8,1> are for used for suitable situations. Forexample in case of <<<1,8>>>
+there will be 1 mircroprocessor/1-block and 8-threads in it. This is suitable when your task requires the faster coordination b/w the threads, b/c in this case all the 8 threads will have shared memeory and shared cache e.t.c so faster communication. <<<8,1>>> is suitable in the situations where u need parallel execution of threads in different multiprocessors. e.g in case of cuda, we cannot assignm more than 32 threads in a block. So in order to maximize utilization of our gpu resources, we use <8,1> threads in parallel execution in separate blocks.
+
+

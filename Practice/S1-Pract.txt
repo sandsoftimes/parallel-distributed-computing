@@ -1,0 +1,625 @@
+786-----------------------------------------------------
+
+OpenMP Tasks for parallism
+
+int summation(int *array,int N){
+	if(N==0)return 0;
+	else if (N==1)return *array;
+	int half=N/2;
+	return summation(array,half)+summation(array+half,N-half);
+}
+
+Sections-----
+
+3 threads
+
+create multiple thread
+ 
+ #include <iostream>
+ 
+#include <omp.h>
+
+void main(){
+	int tid;
+	#pragma omp parallel num_threads(2) private(tid){
+	tid=omp_get_thread_num();
+	#omp pragma for
+	for(i=0;i<20;i++){
+	printf("%3d by %3d\n",i,tid)
+	}
+	} 	
+}
+
+WORK-SHARING------------------------------
+
+For Data Paralillism we use FOR
+
+For Task Paraliliism we use SECTIONS
+
+For Recurssion and unorderly problems we use TASKs
+
+int tid;
+
+# pragma omp parallel num_threads(2) private(id)
+
+tid=omp_get_tid
+
+#pragma omp for
+
+for (i=0;i<20;i++){
+	printf("%3d by %3d\n"),i,tid
+}
+
+TASK PARALLISM-------------------------------
+
+Used to parallize the tasks
+
+Used where we have to use the same resources
+
+Sections are used in this case
+
+OMP-MP-LOCKS-----------------------------------
+
+omp_lock_t mylock; lock object
+
+omp_init_lock(&myLock); intilized the lock
+
+#pragma omp parallel
+
+{
+
+	omp_setlock(&mylock);
+	
+	// do some work
+	
+	omp_unsetlock(&mylock);
+	
+}
+
+omp_destroy_lock(&myLock);
+
+Also used omp_test_lock(&myLock) to check whether a lock is set or not
+
+omp_nest_lock_t mylock;
+
+omp_init_nest_lock(&myLock);
+
+omp_set_nest_lock(&myLock);
+
+omp_unset_nest_lock(&myLock);
+
+omp_destroy_nest_lock(&myLock);
+
+THREADS-----------------------------------------
+
+Smallest execution paths
+
+Run within a scope or a process
+
+Fork-Join Model
+
+main()
+
+{
+//serial region
+
+fork()
+
+//parallel region
+
+join()
+
+//serial region;
+}
+
+OPENMP=Open Multi Processing
+
+#pragma omp is used in OPENMP
+
+POSIX-THREADS-pthreads-------------------------------------------------------
+
+before openMP----for parallel programming pthreads were used
+
+#include <pthread.h>
+
+#define NUM_THREADS 5 
+
+int main(){
+	pthread_t threads[NUM_THREADS];
+	int rc, t;
+	for(t=0;t<NUM_THREADS;t++){
+	printf("Creating thread %d\n",t);
+	rc=pthread_create(&threads[t],NULL,PrintHello,(void*)t);
+	if(rc)
+	printf(thread successfully created)
+	}
+} pthread_exit(NULL)
+
+void *PrintHello(void*threadid){
+	printf("\n%d:Hello World!\n",threadid);
+	pthread_exit(NULL);
+}
+
+pthread_create()
+
+pthread_join()
+
+Posix is hard, pthread_create,pthread_exit,pthread_join
+
+Why not use OPENMP for threads working
+
+#include<omp.h>
+
+int tid;
+
+#pragma omp parallel num_threads(4) private(tid)
+
+tid=get_thread_num();
+
+printf("Hello from %d\n",tid);
+
+gcc -fopenmp hello.c
+
+OPENMP COMMON COMMANDS-----------------------
+
+omp_set_num_threads(int);
+
+omp_get_max_threads();
+
+omp_in_parallel();
+
+omp_get_num_procs();
+
+omp_set_lock()
+
+SHARED VS PRIVATE TID------------------------------------------
+
+#pragma omp parallel private(tid)
+
+#pragma omp parallel shared(tid)
+
+CONDITIONAL PARALLILSM---------------------------------------------------
+
+int tid, doit=0
+
+#pragma omp parallel if(doIT==1) private(tid)
+
+PROFILING------------------------------------------------
+
+Is used to increase the optimization in terms of frequency and duration of execution
+
+clocks 
+
+real=wall clock
+
+user=time taken in user space
+
+sys=time taken in kernal space
+
+elapsed=finish.tv.sec-start.tv.sec
+
+PROFILING TYPES-------------------------
+
+System lvl profiling is done through Oprofile via kernall
+
+User lvl profiling is done through gprof
+
+TIME CALCULATION VIA OMP---------------------------------------
+
+#include <omp.h>
+
+double start_time=omp_get_wtime();
+
+double starting=omp_get_wtime();
+
+#pragma omp parallel 
+
+double total=omp_get_wtime()-start_time;
+
+SPEED UP------------------------------------------
+
+is used to check the performance 
+
+INTRODUCTION--------------------------------------
+
+Clock Rates are 4.0 H these days
+
+Higher Processor Speed = More Head Dissipation
+
+What is happening in a single clock cycle?
+
+xchg
+
+push 
+
+pop 
+
+add,sub
+
+cmp 
+
+mul
+
+Can we get a 8GHZ clock?
+
+ANSWER: 
+
+Yes we can get it but the result will be not much feasable beacuse of high heat dissipation
+
+What will happen if we reach a 8GHZ clock frequnecy?
+
+ANSWER:
+
+Its cost will be high also it will dissipate alot of heat and the power consumption will be high while it will have increase proceessing power with high frequency 
+
+FLOPS=FLoating Points Operations Per Second	
+
+QUESTION: 
+
+Akram has a 12 GHz single core processor. Akbar has a quad-core 3 GHz
+multiprocessor. Which one is faster?
+
+Akram has 12 ghz of single core processor, so it is able to handle the single task requiring high processing power more efficiently while on the other hand, Akbar 4 core-3GHZ is build for multitaskinng and can handle multiple tasks with intermediate processing power more efficiently.
+
+Internal PC-External PC-Router for connection
+
+With Time Cores are increasing but the power consumption is on decrease
+
+Why we need  more than 3 Million Cores (or more)
+
+Because some calcultations are not possible on current hardware so we require some high performance high threads software for this. e.g calculation of earth quake, aerodynamics of plane calculations e.t.c
+
+MOORES'LAW:
+
+Computation Power will increase exponentially
+
+Computation Cost will decrease exponentilly
+
+Transistory Density(Transisters) will be double every year
+
+Question:
+
+Is IDEAL SPEED UP is possible?
+
+Answer: No ideal speed up is not possilbe, increasing the processor count will only increase the speed up to some lvl because it cannot be increased more because of other factores e,g Mutual Exlusion, RaceCondition, Deadlocks Lazy programming and Lazy Distributed programming skills and bottlenecks e.t.c
+
+THEORETICAL SPEED UP-----------------------------------------------------------
+
+AMDHALS LAW FORMULA
+
+1/serial+Parallel/2
+
+SERIAL VS PARALLEL VS DISTRIBUTED----------------------------------------------
+
+SERIAL COMPUTING SYSTEMS:
+
+-single-control-mechanism 
+
+-determines the next instruction to be executed
+
+-Speed up can be introduced by: 
+	
+	Instruction Caching
+	
+	Pipelining 
+	
+	Overclocking
+	
+	Overlapping of I/O and Computation using Direct Memory Acess
+	
+	Note: Two serial programs can execute concurrently (multi-tasking)
+		i.e two serial programs running on a cpu core is called as multitasking
+		
+Multi-Processing: Multiple CPU cores executing more than 1 program at a given time  
+
+Multi-Tasking: A single CPU core executing more than 1 program
+
+Multi-Threading: Presence of more than 1 threads in a single program
+
+PARALLEL COMPUTING--------------------------------
+
+Several processors that are located within a small distance to each other
+
+Purpose: To perform computation tasks jointly
+
+Communication: is fast b/w these 
+
+DISTRIBUTE COMPUTING-----------------------------------
+
+Processors are far apart from each other but perform task jointly
+
+Challenges:
+
+Communication Latency
+
+Unreliable communication link
+
+What is in Parallel not in Serial?
+
+1-Task Allocation-Breakdown of task 
+
+2-Interim Communication-Communication b/w processors
+
+3-Synchornization-Waiting internal b/w processors
+
+APPLICATION OF PARALLEL COMPUTING----------------------------------
+
+Word Processing
+
+Browser Working
+
+GUI's
+
+Video Games
+
+Web Browser
+
+Encoding/Decoding
+
+OS
+
+DIFFERENCE B/W TASK Parallilism AND DATA PARALILLISM------------------------
+
+Task-Parallislism-Threads are involved in doing different things.
+
+Data-Paralillism-Threads are involved in doing same thing but at different locations
+
+ARRAY-PROCESSORS----------------------------(VECTOR PROCESSOR)
+
+	- array of coupled processors
+	- processors perform group or combine executions
+	- distributed/share memory used
+	
+DISTRIBUTED Vs Parallel/SHARED MEMORY--------------------------------------
+
+In distributed memory is far apart but connected to each other
+
+In parallel, memory chunk are present one after another
+
+MULTIPROCESSORS--------------------------------------
+
+	-A bit loosely coupled processors where each processor have control on what to do
+
+	-Well suited for task paralillism
+
+	-Can perform same or different tasks
+
+SYSTOLIC ARRAYS----------------------------------------
+
+	-Very Large Scale Integration
+	-VLSI
+	-Designed For Single Purpose Only
+	
+MASSIVELY PARALLEL VS CORASE GRAINED PARALLEL-----------------------
+
+Thousands of processors-----Massively Parallel System
+
+Limited no of processors----coarse grained parallel systems
+
+	-Clock frequency of massively parallel system is less as compared to coarse-grained 
+	
+	-In Massively Parallel Systems, there is global control mechanism which control all the parallel processors, when to start a program when to stop. Give data to one and take data from the other
+	
+	-In Coarsed Grained Parallel system, there is no central control system, so processors collaborate with each other in ad-hoc manner
+	
+ASYNCHRONOUS VS SYNCHROUNUS OPERATIONS---------------------------------
+
+	-Synchornous operations cannot face race condition
+	
+	-asynchrounous can face race condition
+	
+	-in synchrounous time latency due to wait
+	
+	-in asynchronous time delay is very low 
+	
+PROCESSOR INTERCONNECTS---------------------------------------
+
+SHARED MEMORY VS MESSAGE PASSING ------------------
+	-IN Shared memory, one process store data in memory and after it other will take it
+	
+	-only 1 can access memory at a single time 
+	
+	-access lateny is low 
+	
+	-when 1 is writing other cannot read 
+	
+	- simentenous access to sharedd memory can lead to race condtition 
+	
+	-In Message, Passing,
+	
+	- Process communicate through interconnected network
+	
+	- Each processor has private memory 
+	
+FLYN-JOHNSON TAXONOMY (CLASSIFICATION)
+
+1-SIMD 
+
+2-MIMD
+
+3-SISD
+
+4-MISD
+
+	-Two things 
+	
+	1-instruction stream=set of instructions 
+	
+	2-data stream=set of data
+	
+SISD:
+
+	-single arthematic unit
+	-single logical unit
+	-single memory 
+	-used to perform single arthematic operations 
+
+MISD:
+	-commercially not possible 
+	-multiple processors working on descrypting single encrypted data
+
+SIMD:
+	-Single Instruction multiple data
+	-GPU are used for this purpose 
+	-GPU's have single ALU and FPU(Field Processing Unit) so they are used
+	-Use to perform same types of or single instructions for multiple tasks 
+
+MIMD: 
+	-Multiple instruction multiple data
+	-CPU's are used for this purpose 
+	-CPU's have multiple ALU and FPU so they can do multiple task at the same time
+	-Use to perform different types of instructions e.g browser,calculator,movie all working at
+	the same time
+	
+-Difference between HADOOP and SPARK----------------------------------------------------------
+
+	-HADOOP don't access the memory directly 
+
+	-SPARK access the data directly 
+
+	-both are used to treat big data 
+	
+THREADS-----------------------------------------
+
+Before OMP, pthreads were used with alot of prior knowledge 
+
+#Serial Portion
+
+Fork()
+
+#ParalleL Portion
+
+Join()
+
+#Serial Portion
+
+OMP=Open Multiprocessing
+
+#pragma omp parallel num_threads() private(tid)
+
+	-POSIX-Threads have no optimizations
+
+	-Difficult to understand for a newbie
+	
+	-not designed for data-parallism 
+	
+-COMMON RUNTIME ROUTINES OF OMP:
+	
+	-omp_get_thread_num()
+	
+	-omp_set_lock
+	
+	-omp_unset_lock
+	
+	-omp_destroy_lock
+	
+	-omp_get_num_proc()
+
+	-omp_get_max_threads()
+	
+	-omp_get_parallel()
+	
+SHARED(tid) vs PRIVATE(tid)
+
+	-in shared the tid is shared to all the threads. So multiple can change/access it at a single time which can lead to race condition
+	
+	-in private the all the threads make a separete copy of it locally and work on it
+	
+	-solution to it is that make variable shared but store it in omp_critical or omp_atomic
+	
+CONDITION ON OMP-----------------------
+
+	#pragma omp parallel if(doit==1) private(tid)
+		
+PROFILING-------------------------------
+
+is used for the optimization of code 
+
+	-User Level optimization (gprof and Google optimization)
+	
+	-Kernal Level(optimize using hw)
+	
+	
+CLOCKs-----
+
+time ./a.out is used to check execution time 
+
+time in kernal space
+	user space
+	wall clock time
+	
+OMP-GET_WTIME()------------
+
+start time=omp_get_wtime()
+
+time=omp_get_wtime()-start;
+
+WORK SHARING---------------------------------
+
+Work loads assign to threads
+
+	done by three ways:
+	- for (data parallism)
+	- section (task parallism)
+	- tasks (for irregular problems)
+	
+STATIC Schd vs DYNAMIC Schd
+
+	- Low overhead vs high overhead
+	- threads intilized with chunks vs threads grab chunks
+	- High load imbalance vs low load imbalance
+	
+#pragma omp parallel num_threads(4)
+
+#pragma omp for schedule (static, 5)
+
+#pragma omp parallel num_threads(4)
+
+TASK PARALLISM-----------
+
+When multiple threads work on same data 
+
+
+#pragma omp parallel sections num_threads(2)
+
+#pragma omp section
+
+#pragma omp section
+
+#pragma omp parallel sections num_threads(3)
+
+#pragma omp section
+
+#pragma omp section
+
+#pragma omp section
+
+
+#pragma omp for schedule (dynamic,3)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
